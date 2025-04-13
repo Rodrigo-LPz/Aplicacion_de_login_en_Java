@@ -23,6 +23,9 @@ public class DBloginApp{
         Connection connection = null;
         Statement stmt = null;
         
+        // Declaramos el objeto "ResultSet", definido dentro del "try" para poder obtener el resultado dado por la consulta a la base de datos y "Statement" para declarar posteriormente las sentencias con las que interactuar con dicha base.
+        ResultSet resultS = null;
+        
         // Solicitamos los datos de entrada al usuario.
         System.out.print("Please, enter your username: ");
         username = user.nextLine();
@@ -37,10 +40,27 @@ public class DBloginApp{
             
             // Conectarse a la base de datos 'MySQL'.
             connection = DriverManager.getConnection(db_url, db_user, db_password); /* Creamos el objeto "connection". */
-            System.out.println("Conexi?n correcta");
+            System.out.println("Conexión establecida con la base de datos.");
             
             //Realizamos las distintas consultas SQL.
+            String consulta = "SELECT * FROM users WHERE username = ? AND password = ?";
+            pstmt = connection.prepareStatement(consulta);
+            // Tanto el "1" como el "2" funcionarán como array, sustituyéndose su valor por los (?) del String "Consulta". Eto funcionará como una especie de array
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
             
+            // Muestreo de la consulta.
+            System.out.println("Consulta SQL ejecutada: SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "';");
+            
+            // Ejecutamos la consulta.
+            rs = pstmt.executeQuery();
+            
+            // Verificamos si la consulta encontró el usuario, es decir, validamos el resultado.
+            if (rs.next()) {
+                System.out.println("Inicio de sesión correcto.");
+            } else {
+                System.out.println("Usuario o contraseña incorrectos.");
+            }
             
         } catch (ClassNotFoundException ex){ /* Capturamos el posible error que puede surgir al cargar el driver, es decir, en "Class.forName". */
             System.err.println("Error al cargar el driver del SGBD: " + ex.getMessage());
